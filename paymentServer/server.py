@@ -1,4 +1,5 @@
 """
+
 CODE ADAPTED FROM:
 
 (C) Copyright 2009 Igor V. Custodio
@@ -22,6 +23,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from ISO8583.ISO8583 import ISO8583
 from ISO8583.ISOErrors import *
 from socket import *
+
+import os
+
+os.system(['clear','cls'][os.name == 'nt'])
 
 # Configure the server
 serverIP = "localhost" 
@@ -60,10 +65,14 @@ while 1:
                                 for v in v1:
                                         print ('Bit %s of type %s with value = %s' % (v['bit'],v['type'],v['value']))
                                         
-                                if pack.getMTI() == '0800':
-                                        print ("\tThat's great !!! The client send a correct message !!!")
+                                if pack.getMTI() == '2100':
+                                        print ("Authorization request received \n")
+                                
+                                elif pack.getMTI() == '2200':
+                                        print ("Request funds received \n")
+                                
                                 else:
-                                        print ("The client dosen't send the correct message!")  
+                                        print ("The client sent an invalid message!")  
                                         break
                                         
                                         
@@ -75,7 +84,11 @@ while 1:
                                 break
                         
                         #send answer
-                        pack.setMTI('0810')
+                        if pack.getMTI() == '2100':
+							pack.setMTI('2110')
+                        
+                        elif pack.getMTI() == '2200':
+							pack.setMTI('2210')
                         
                         if bigEndian:
                                 ans = pack.getNetworkISO()
